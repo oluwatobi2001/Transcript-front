@@ -109,3 +109,12 @@ body {
 .h3 {
   @apply text-[28px] text-primaryBlue;
 }
+.select__control {
+  min-height: 3.5rem; /* Adjust to preferred height */
+  border-radius: 0.375rem;
+  border: 1px solid #D1D5DB;
+}
+
+.select__menu {
+  z-index: 50; /* Ensure it appears above other elements */
+}

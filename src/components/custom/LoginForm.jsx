@@ -71,8 +71,8 @@ export default function CardWithForm() {
     try {
        const url = `${import.meta.env.VITE_PUBLIC_BASE_API_URL}/api/auth/login`; // Use environment variable for secure URL storage
        const response = await axios.post(url, {
-        UserName : 'DeanCli2017',
-        UserPassword : formData.password
+        userEmail : formData.email,
+        userPassword : formData.password
        });
       
  console.log(response?.data, "login successful");

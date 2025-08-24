@@ -4,7 +4,7 @@ import { levels, sessionType, year } from '../../Sessions';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '../ui/table';
 import { v4 as uuidv4 } from 'uuid';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios'
+
 const courseTitles = {
   200: ["Anatomy", "Physiology", "Biochemistry"],
   300: ["Anatomy", "Physiology", "Biochemistry"],
@@ -12,7 +12,7 @@ const courseTitles = {
   500: ["Obstetrics and Gynaecology", "Paediatrics", "Dermatology", "Mental health"],
   600: ["Medicine", "Surgery", "Community Health"],
 };
-import { useNavigate, Link } from "react-router-dom";
+
 const ScoreUpload = () => {
 
   const dispatch = useDispatch();
@@ -20,22 +20,15 @@ const ScoreUpload = () => {
   const { newStudent: data, setSelectedStudentData, } = useSelector(
     (st) => st.app
   );
-  const navigate = useNavigate()
-
   console.log(data)
   const { token } = useSelector((st) => st.user);
   const [studentResult, setStudentResult] = useState([]);
-const [valueError , setValueError] = useState(false);
-const [uploadSuccess, setUploadSuccess] = useState(false);
-const [uploadError, setUploadError]= useState(true)
-const [success, setSuccess ] =  useState(false)
+const [valueError , setValueError] = useState(false)
   const addNewLevel = () => {
     const newLevel = {
       id: uuidv4(),
       level: null,
-      studentStatus: 'Undetermined',
       session: null,
-      academicSession: null,
       courses: []
     };
     setStudentResult(prev => [...prev, newLevel]);
@@ -49,32 +42,8 @@ const [success, setSuccess ] =  useState(false)
     });
   };
 
-  const uploadResult = async() => {
-if(!data?.name) {
-  setUploadError(true);
-
-}
-    const studentInfo = {...data, details: studentResult};
-    console.log(studentInfo);
-   
-    const resultUpload = await axios.post("http://localhost:5000/api/transcript/addTranscript", {studentInfo},
-        {
-      headers: {
-        Authorization: "Bearer " + token,
-      },
-    })
-    console.log(resultUpload.data);
-  if(resultUpload.data?.msg) {
-    setUploadError(false)
-    setSuccess(true);
-    navigate("/results")
-    
-  }
-  else {
-
-    setUploadError(true)
-  }
-
+  const uploadResult = () => {
+    console.log(data)
   
     console.log('Final Student Result:', studentResult);
   };
@@ -113,7 +82,7 @@ const NewScore = ({ id, updateResult, setValueError }) => {
   const [selectedLevel, setSelectedLevel] = useState(null);
   const [courseData, setCourseData] = useState([]);
   const [sessionDisabled, setSessionDisabled] = useState(false)
-  const [studentStatus, setStudentStatus] = useState('Undetermined');
+  const [studentStatus, setStudentStatus] = useState('');
 
   const sessionTypeFunc = (selected) => {
     setSelectSession(selected);
@@ -146,64 +115,10 @@ const NewScore = ({ id, updateResult, setValueError }) => {
 
     updateResult(id, {
       level: selected?.value,
-      session: selectSession?.value,
-      courses: formattedCourses,
-      studentStatus: studentStatus,
-      academicSession: selectedOption?.value
+      courses: formattedCourses
     });
   };
 
-  const evaluateStudentStatus = () => {
-  
-    if (selectedLevel?.value == 200 || 300 || 600 ) {
-      const failCount = courseData.filter(
-        (course) =>
-          course.courseGrade === 'Fail' && course.resitGrade !== 'Pass'
-      ).length;
-
-      if (failCount >= 3) {
-        setStudentStatus('Withdrawn');
-      } else if (failCount === 2) {
-        setStudentStatus('Repeat');
-      } 
-      else {
-        setStudentStatus('Promoted');
-      }
-    }
-    
-  
-    if (selectedLevel?.value == 400) {
-      const failCount = courseData.filter(
-        (course) =>
-          course.courseGrade === 'Fail' && course.resitGrade !== 'Pass'
-      ).length;
-      console.log(failCount)
-
-      if (failCount === 2) {
-        setStudentStatus('Repeat');
-
-      }
-      else {
-        setStudentStatus('Promoted');
-      }
-    } 
-    if (selectedLevel?.value == 500) {
-      const failCount = courseData.filter(
-        (course) =>
-          course.courseGrade === 'Fail' && course.resitGrade !== 'Pass'
-      ).length;
-      console.log(failCount)
-
-      if (failCount === 2) {
-        setStudentStatus('Repeat');
-
-      } 
-      else {
-        setStudentStatus('Promoted');
-      }
-    } 
-   
-  };
   const handleCellChange = (index, value, isResit = false) => {
     const updatedCourses = [...courseData];
     if (isNaN(value)) {
@@ -228,16 +143,11 @@ const NewScore = ({ id, updateResult, setValueError }) => {
     }
 
     setCourseData(updatedCourses);
-    console.log(selectSession?.value)
 
-    
-    evaluateStudentStatus();
     updateResult(id, {
       level: selectedLevel?.value,
       session: selectSession?.value,
-      courses: updatedCourses,
-      academicSession: selectedOption.value,
-      studentStatus: studentStatus
+      courses: updatedCourses
     });
   };
 
@@ -251,8 +161,28 @@ const NewScore = ({ id, updateResult, setValueError }) => {
     else return 'Distinction';
   };
 
- 
+  const evaluateStudentStatus = () => {
+    if (selectedLevel?.value) {
+      const failCount = courseData.filter(
+        (course) =>
+          course.courseGrade === 'Fail' && course.resitGrade !== 'Pass'
+      ).length;
 
+      if (failCount >= 3) {
+        setStudentStatus('Withdrawn');
+      } else if (failCount === 2) {
+        setStudentStatus('Repeat');
+      } else {
+        setStudentStatus('Promoted');
+      }
+    } else {
+      setStudentStatus('N/A');
+    }
+  };
+
+  React.useEffect(() => {
+    evaluateStudentStatus();
+  }, [courseData, selectedLevel]);
 
   return (
     <>
@@ -302,7 +232,7 @@ const NewScore = ({ id, updateResult, setValueError }) => {
                     <input
                       type='text'
                       value={course.courseScore}
-                      onChange={(e) => {handleCellChange(idx, e.target.value); }}
+                      onChange={(e) => handleCellChange(idx, e.target.value)}
                       className='w-full border h-[40px] border-gray-300 rounded text-center'
                       placeholder='Score'
                     />
@@ -310,18 +240,14 @@ const NewScore = ({ id, updateResult, setValueError }) => {
                       <TableCell>{course.courseGrade}</TableCell>
                     )}
 
-                     {course.courseGrade === 'Fail'  && studentStatus !== 'Repeat' && studentStatus !== 'Withdrawn' && (
-
-                      
+                    {course.courseGrade === 'Fail' && (
                       <>
                         <TableCell>Resit</TableCell>
                         <input
                           type='text'
                           value={course.resitScore}
-                          onChange={(e) =>{
-                            handleCellChange(idx, e.target.value, true);
-                        
-                          }
+                          onChange={(e) =>
+                            handleCellChange(idx, e.target.value, true)
                           }
                           className='w-full border h-[40px] border-gray-300 rounded text-center'
                           placeholder='Resit Score'
@@ -329,11 +255,11 @@ const NewScore = ({ id, updateResult, setValueError }) => {
                         {course.resitScore && (
                           <TableCell>{course.resitGrade}</TableCell>
                         )}
-                      </> 
+                      </>
                     )}
                   </td>
                 ))}
-              </TableRow> : <p className='w-full mx-auto'>Session isn't active</p> }
+              </TableRow> : <p>Session isn't active</p> }
             </TableBody>
           </table>
         </div>

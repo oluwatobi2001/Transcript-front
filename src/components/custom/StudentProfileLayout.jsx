@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useSelector } from "react-redux";
 
 export default function Student({ children }) {
-  const { selectedStudentData: data } = useSelector((st) => st.app);
+  const { newStudent: data } = useSelector((st) => st.app);
 
   return (
     <>

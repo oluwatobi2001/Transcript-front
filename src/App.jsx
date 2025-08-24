@@ -10,6 +10,8 @@ import ResultsPage from "./pages/ResultsPage";
 
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import NewScore from "./components/custom/newScore";
+import ScoreUpload from "./components/custom/newScore";
 
 function App() {
   return (
@@ -20,6 +22,7 @@ function App() {
         <Route path="/results" element={<Results />} />
         <Route path="/test" element={<Test />} />
         <Route path="/upload" element={<Upload />} />
+        <Route path="/newScore" element={<ScoreUpload/>} />
         <Route path="/upload/:identifier" element={<UploadIndividual />} />
         <Route path="/results/:id" element={<ResultsPage />} />
       </Routes>
