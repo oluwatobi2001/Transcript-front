@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -6,29 +7,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
-import { useDispatch } from "react-redux";
 import HomeHeader from "@/components/custom/HomeHeader";
 import { createNewStudent, setSelectedStudentData } from "@/Global/slices/AppSlice";
 
 export default function Upload() {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { token } = useSelector((st) => st.user); // Use token for API calls only
 
   const userId = Math.random().toString(36).substr(2, 9);
 
   const formik = useFormik({
     initialValues: {
-      
       name: "",
       email: "",
       matricNo: "",
-      academicSessionAdmitted: "", // Updated field name
+      academicSessionAdmitted: "",
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Full Name is required"),
       email: Yup.string().email("Invalid email address").required("Email is required"),
       matricNo: Yup.string().required("Matriculation Number is required"),
-      academicSessionAdmitted: Yup.string().required("Academic Session Admitted is required"), // Updated validation
+      academicSessionAdmitted: Yup.string().required("Academic Session Admitted is required"),
     }),
     onSubmit: (values) => {
       dispatch(createNewStudent(values));

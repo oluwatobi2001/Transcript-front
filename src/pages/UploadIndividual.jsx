@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Student from "../components/custom/StudentProfileLayout";
 import { Button } from "../components/ui/button";
-import EditableTable from "../components/custom/EditableTable";
+import ScoreUpload from "../components/custom/ScoreUpload";
 import axios from "axios";
 
 export default function UploadIndividual() {
@@ -42,7 +42,7 @@ console.log(data)
           <h2 className="font-bold capitalize text-OrangeOau mb-4 text-[24px]">
             Input Results
           </h2>
-          <EditableTable handleUploadResults={handleUploadResults} />
+          <ScoreUpload handleUploadResults={handleUploadResults} />
          
         </div>
       </Student>

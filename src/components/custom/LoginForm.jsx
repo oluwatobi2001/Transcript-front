@@ -43,6 +43,7 @@ export default function CardWithForm() {
     password: "",
   });
   const [formErr, setFormErr] = useState({});
+  const [apiError, setApiError] = useState(""); 
 
   // Function
   const handleChange = (e) => {
@@ -69,17 +70,22 @@ export default function CardWithForm() {
 
   const login = async () => {
     try {
-       const url = `${import.meta.env.VITE_PUBLIC_BASE_API_URL}/api/auth/login`; // Use environment variable for secure URL storage
-       const response = await axios.post(url, {
-        userEmail : formData.email,
-        userPassword : formData.password
-       });
-      
- console.log(response?.data, "login successful");
-       Cookies.set("token", response?.data?.token);
-       dispatch(setCredentials(response?.data?.token));
+      const url = `${import.meta.env.VITE_PUBLIC_BASE_API_URL}/api/auth/login`;
+      const response = await axios.post(url, {
+        userEmail: formData.email,
+        userPassword: formData.password,
+      });
+
+      Cookies.set("token", response?.data?.token);
+      dispatch(setCredentials(response?.data?.token));
+      setApiError(""); // Clear API error on success
       navigate("/results");
     } catch (error) {
+      // Set API error message
+      setApiError(
+        error?.response?.data?.message ||
+        "Login failed. Please check your credentials and try again."
+      );
       console.error(error);
     }
   };
@@ -110,6 +116,12 @@ export default function CardWithForm() {
         </CardTitle>
       </CardHeader>
       <CardContent className=" max-w-[95%] md:max-w-[90%] mx-auto">
+        {/* Display API error */}
+        {apiError && (
+          <div className="err-message text-center text-[red] py-2 mb-4">
+            {apiError}
+          </div>
+        )}
         <form>
           <div className="grid w-full items-center gap-8">
             <div className="flex flex-col space-y-2.5">
