@@ -61,6 +61,9 @@ const ScoreUpload = () => {
     );
   };
 
+  const deleteEntry =(id)=> {
+setStudentResult(prev => prev.filter(level => level.id !== id))
+  }
   // Upload all results
   const uploadResult = async () => {
     if (!data?.name) {
@@ -96,7 +99,7 @@ const ScoreUpload = () => {
             id={level.id}
             updateResult={updateStudentResult}
             setValueError={setValueError}
-            index={idx + 1}
+            index={idx + 1} deleteEntry={deleteEntry}
           />
         ))}
       </div>
@@ -130,7 +133,7 @@ const ScoreUpload = () => {
   );
 };
 
-const LevelCard = ({ id, updateResult, setValueError, index }) => {
+const LevelCard = ({ id, updateResult, setValueError, index , deleteEntry}) => {
   const [selectedYear, setSelectedYear] = useState(null);
   const [selectedSession, setSelectedSession] = useState(null);
   const [selectedLevel, setSelectedLevel] = useState(null);
@@ -167,28 +170,49 @@ const LevelCard = ({ id, updateResult, setValueError, index }) => {
   };
 
   // Status logic (your clarified logic)
-  const evaluateStudentStatus = (courses) => {
-    // Count courses failed after resit
-
-    
+  const evaluateStudentStatus = (courses, level) => {
     let failedAfterResit = 0;
+    let failedImportant = 0;
+  
     courses.forEach(course => {
-      if (
-        course.courseGrade === 'Fail' &&
-        (
-          !course.resitScore || determineGrade(course.resitScore) === 'Fail'
-        )
-      ) {
-        failedAfterResit += 1;
+      const failedAfterResitCheck =
+        course.courseGrade === "Fail" &&
+        (!course.resitScore || determineGrade(course.resitScore) === "Fail");
+  
+      if (level === 500) {
+        if (
+          failedAfterResitCheck &&
+          (course.courseTitle === "Obstetrics and Gynaecology" ||
+           course.courseTitle === "Paediatrics")
+        ) {
+          failedImportant += 1; // Count how many important courses failed
+        }
+        // Ignore Dermatology & Mental Health completely
+      } else {
+        // General rule for other levels
+        if (failedAfterResitCheck) {
+          failedAfterResit += 1;
+        }
       }
     });
-
-    let status = 'Promoted';
-    if (failedAfterResit === 1) status = 'Repeat';
-    if (failedAfterResit > 1) status = 'Withdrawn';
+  
+    let status = "Promoted";
+  
+    if (level === 500) {
+      if (failedImportant === 2) {
+        status = "Repeat";   // fail both = Repeat
+      } else {
+        status = "Promoted"; // fail 0 or 1 = Promoted (with resit if 1)
+      }
+    } else {
+      // Normal rule
+      if (failedAfterResit === 1) status = "Repeat";
+      if (failedAfterResit > 1) status = "Withdrawn";
+    }
+  
     return status;
-    
   };
+  
   useEffect(() => {
     if (allDropdownsSelected && allScoresFilled) {
       const newStatus = evaluateStudentStatus(courseData);
@@ -276,6 +300,7 @@ const LevelCard = ({ id, updateResult, setValueError, index }) => {
 
   return (
     <div className="bg-white rounded-lg shadow p-6 mb-2">
+      <div className=' w-full flex flex-row items-center justify-end cursor-pointer' onClick={()=> {deleteEntry(id)}}><p className='font-extrabold'>X</p></div>
       <div className="flex flex-col md:flex-row gap-4 mb-4 items-center">
         <div className="w-full md:w-1/3">
           <label className="block text-sm font-medium mb-1">Year/Session</label>

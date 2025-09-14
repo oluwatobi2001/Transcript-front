@@ -45,6 +45,12 @@ function HomeHeader() {
             Upload
           </Link>
           <Link
+            to={"/admin/create-subadmin"}
+            className="flex font-bold h-10 items-center text-primaryBlue space-x-1 rounded-md p-1"
+          >
+            Create Users
+          </Link>
+          <Link
             to={"/"}
             className="flex font-bold h-10 items-center text-primaryBlue space-x-1 rounded-md p-1"
           >
