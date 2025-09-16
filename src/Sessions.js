@@ -22,6 +22,11 @@ export const levels = [
   { label: "600 L", value: 600 },
 ];
 
+export const userRole = [
+{label: "Class co-ordinator", value: "Class co-ordinator"},
+{label: "Dean", value: "dean"},
+{label: "Admin", value: "admin"},
+]
 const courseTitles = {
     twohundredlevel: ["Anatomy", "Physiology", "Biochemistry"],
     threehundredlevel: ["Anatomy", "Physiology", "Biochemistry"],

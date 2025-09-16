@@ -73,7 +73,7 @@ setStudentResult(prev => prev.filter(level => level.id !== id))
     const studentInfo = { ...data, details: studentResult };
     try {
       const resultUpload = await axios.post(
-        "http://localhost:5000/api/transcript/addTranscript",
+        `${import.meta.env.VITE_PUBLIC_BASE_API_URL}/api/transcript/addTranscript`,
         { studentInfo },
         { headers: { Authorization: "Bearer " + token } }
       );
@@ -200,14 +200,14 @@ const LevelCard = ({ id, updateResult, setValueError, index , deleteEntry}) => {
   
     if (level === 500) {
       if (failedImportant === 2) {
-        status = "Repeat";   // fail both = Repeat
+        status = "Repeat";   
       } else {
         status = "Promoted"; // fail 0 or 1 = Promoted (with resit if 1)
       }
     } else {
       // Normal rule
       if (failedAfterResit === 1) status = "Repeat";
-      if (failedAfterResit > 1) status = "Withdrawn";
+      
     }
   
     return status;

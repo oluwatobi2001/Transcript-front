@@ -4,6 +4,9 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card, CardContent, CardTitle } from "../components/ui/card";
  import axios from "axios"; // Uncomment when ready for API calls
+ import {userRole} from '../Sessions';
+ import Select from 'react-select';
+
 
 const demoSubAdmins = [
 	{ name: "Jane Doe", email: "jane@oau.edu.ng" },
@@ -13,46 +16,54 @@ const demoSubAdmins = [
 
 export default function AdminCreateSubAdmin() {
 	const { token } = useSelector((st) => st.user); // Use token for API calls only
-	const [form, setForm] = useState({ name: "", email: "", password: "" });
+	const [form, setForm] = useState({ Fname: "",  Lname: "",  Uname: "", email: "", password: "" , userRole: ""});
 	const [subAdmins, setSubAdmins] = useState(demoSubAdmins);
 	const [error, setError] = useState("");
 	const [success, setSuccess] = useState("");
-
+const [selectedUserRole, setSelectedUserRole] = useState(null)
 	const handleChange = (e) => {
 		setForm({ ...form, [e.target.name]: e.target.value });
 	};
 
+	const handleUserRoleChange =(selected) => {
+		setSelectedUserRole(selected?.value);
+		setForm({...form, userRole: selected.value})
+	}
+
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		console.log(form)
 		setError("");
 		setSuccess("");
-		if (!form.name || !form.email || !form.password) {
+		if (!form.Fname || !form.Uname ||!form.Lname || !form.email || !form.password  || !form.userRole ) {
 			setError("All fields are required.");
 			return;
 		}
-		// Demo: Add to local state
-		setSubAdmins([...subAdmins, { name: form.name, email: form.email }]);
-		setSuccess("Sub-admin created successfully!");
-		setForm({ name: "", email: "", password: "" });
+		
+		
 
 		// API call example (uncomment and edit when ready)
-		/*
+		
     try {
+		const url = `${import.meta.env.VITE_PUBLIC_BASE_API_URL}/api/auth/register`
       const response = await axios.post(
-        "http://localhost:5000/api/admin/create-subadmin", // <-- Replace with your API endpoint
+        url, // <-- Replace with your API endpoint
         {
-          name: form.name,
-          email: form.email,
-          password: form.password,
+          firstName: form.Fname,
+		  lastName: form.Lname,
+		  userName: form.Uname,
+          userEmail: form.email,
+          userPassword: form.password,
+		  userRole: form.userRole.value
         }
         // Optionally add headers for authentication here
       );
-      if (response.data && response.data.subAdmin) {
-        setSubAdmins([...subAdmins, response.data.subAdmin]);
+      if (response.data) {
+        
         setSuccess("Sub-admin created successfully!");
-        setForm({ name: "", email: "", password: "" });
+        setForm({ Fname: "", email: "", password: "" });
       } else {
-        setError("Failed to create sub-admin.");
+        setError("Failed to create admin.");
       }
     } catch (err) {
       setError(
@@ -60,7 +71,7 @@ export default function AdminCreateSubAdmin() {
         "An error occurred while creating sub-admin."
       );
     }
-    */
+    
 	};
 
 	return (
@@ -72,9 +83,21 @@ export default function AdminCreateSubAdmin() {
 					{success && <div className="text-green-600 mb-2">{success}</div>}
 					<form onSubmit={handleSubmit} className="flex flex-col gap-4">
 						<Input
-							name="name"
-							placeholder="Full Name"
-							value={form.name}
+							name="Fname"
+							placeholder="First Name"
+							value={form.Fname}
+							onChange={handleChange}
+						/>
+						<Input
+							name="Lname"
+							placeholder="Last Name"
+							value={form.Lname}
+							onChange={handleChange}
+						/>
+						<Input
+							name="Uname"
+							placeholder="User Name"
+							value={form.Uname}
 							onChange={handleChange}
 						/>
 						<Input
@@ -90,6 +113,13 @@ export default function AdminCreateSubAdmin() {
 							placeholder="Password"
 							value={form.password}
 							onChange={handleChange}
+						/>	
+						<Select 
+						 options={userRole}
+						 value={form.userRole?.value}
+						 onChange={handleUserRoleChange}
+						 placeholder='Select Role'
+						
 						/>
 						<Button type="submit" className="w-full">
 							Create Sub-Admin
@@ -97,20 +127,7 @@ export default function AdminCreateSubAdmin() {
 					</form>
 				</CardContent>
 			</Card>
-			<div className="mt-8 w-full max-w-md">
-				<h2 className="font-bold mb-2">Sub-Admins List</h2>
-				<ul className="bg-white rounded shadow p-4">
-					{subAdmins.length === 0 && (
-						<li className="text-gray-500">No sub-admins yet.</li>
-					)}
-					{subAdmins.map((admin, idx) => (
-						<li key={idx} className="border-b py-2">
-							<span className="font-semibold">{admin.name}</span> -{" "}
-							{admin.email}
-						</li>
-					))}
-				</ul>
-			</div>
+			
 		</div>
 	);
 }
